@@ -3,5 +3,6 @@ whitenoise
 django
 psycopg2-binary==2.9.6
 dj-database-url==2.0.0
+yt-dpl
 django-cleanup
 django-ratelimit
