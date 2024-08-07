@@ -3,7 +3,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, FileResponse
 from django.views.decorators.http import require_http_methods
 from django.conf import settings
-from ratelimit.decorators import ratelimit
+#from ratelimit.decorators import ratelimit
 import yt_dlp
 
 
@@ -53,7 +53,7 @@ def get_video_info(request):
 
 
 @require_http_methods(["POST"])
-@ratelimit(key='ip', rate='5/h', block=True)
+#@ratelimit(key='ip', rate='5/h', block=True)
 def download(request):
     url = request.POST.get('url', '').strip()
     format_id = request.POST.get('format_id', '').strip()
