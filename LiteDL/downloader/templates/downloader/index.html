@@ -137,26 +137,63 @@
         </div>
     </div>
 
-    <script>
-        document.getElementById('download-btn').addEventListener('click', function() {
-            const url = document.getElementById('url-input').value;
-            fetch('/download/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: 'url=' + encodeURIComponent(url)
-            })
+<script>
+    // Le code JavaScript reste inchangé
+    document.getElementById('url-form').addEventListener('submit', function (e) {
+        e.preventDefault();
+        const url = document.getElementById('url-input').value;
+        fetch('/get_video_info/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: 'url=' + encodeURIComponent(url)
+        })
             .then(response => response.json())
             .then(data => {
                 if (data.error) {
                     document.getElementById('result').innerHTML = data.error;
-                } else {
-                    document.getElementById('result').innerHTML = 'Téléchargement réussi !';
+                    return;
                 }
+                document.getElementById('video-title').textContent = data.title;
+                document.getElementById('thumbnail').src = data.thumbnail;
+                /*const select = document.getElementById('format-select');
+                select.innerHTML = '';
+                data.formats.forEach(format => {
+                    const option = document.createElement('option');
+                    option.value = format.format_id;
+                    option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
+                    select.appendChild(option);
+                });*/
+                document.getElementById('preview').style.display = 'block';
             });
-        });
-    </script>
+    });
+
+    document.getElementById('download-btn').addEventListener('click', function () {
+        const url = document.getElementById('url-input').value;
+        //const formatId = document.getElementById('format-select').value;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/download/';
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = 'csrfmiddlewaretoken';
+        csrfInput.value = '{{ csrf_token }}';
+        form.appendChild(csrfInput);
+        const urlInput = document.createElement('input');
+        urlInput.type = 'hidden';
+        urlInput.name = 'url';
+        urlInput.value = url;
+        form.appendChild(urlInput);
+        /*const formatInput = document.createElement('input');
+        formatInput.type = 'hidden';
+        formatInput.name = 'format_id';
+        formatInput.value = formatId;
+        form.appendChild(formatInput);*/
+        document.body.appendChild(form);
+        form.submit();
+    });
+</script>
 </body>
 </html>
