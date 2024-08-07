@@ -1,3 +1,5 @@
 gunicorn
 whitenoise
 django
+django-cleanup
+django-ratelimit
