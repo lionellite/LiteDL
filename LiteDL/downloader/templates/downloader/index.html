@@ -1,20 +1,92 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!-- ... (le reste du head reste inchangé) ... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Téléchargeur de vidéos</title>
+    <style>
+        /* ... Styles précédents ... */
+        #preview {
+            margin-top: 20px;
+            display: none;
+        }
+        #preview img {
+            max-width: 200px;
+        }
+    </style>
 </head>
 <body>
     <h1>Téléchargeur de vidéos</h1>
     <p>Entrez l'URL de la vidéo YouTube, Facebook ou TikTok que vous souhaitez télécharger :</p>
-    <form method="post" action="{% url 'download' %}">
+    <form id="url-form">
         {% csrf_token %}
         <input type="text" id="url-input" name="url" placeholder="Collez l'URL ici" required>
-        <button type="submit" id="download-btn">Télécharger</button>
+        <button type="submit" id="info-btn">Obtenir les informations</button>
     </form>
-    {% if message %}
-    <div id="result" {% if 'erreur' in message.lower %}style="color: red;"{% endif %}>
-        {{ message }}
+    <div id="preview">
+        <h2 id="video-title"></h2>
+        <img id="thumbnail" src="" alt="Miniature de la vidéo">
+        <select id="format-select"></select>
+        <button id="download-btn">Télécharger</button>
     </div>
-    {% endif %}
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('url-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const url = document.getElementById('url-input').value;
+            fetch('/get_video_info/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'url=' + encodeURIComponent(url)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerHTML = data.error;
+                    return;
+                }
+                document.getElementById('video-title').textContent = data.title;
+                document.getElementById('thumbnail').src = data.thumbnail;
+                const select = document.getElementById('format-select');
+                select.innerHTML = '';
+                data.formats.forEach(format => {
+                    const option = document.createElement('option');
+                    option.value = format.format_id;
+                    option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
+                    select.appendChild(option);
+                });
+                document.getElementById('preview').style.display = 'block';
+            });
+        });
+
+        document.getElementById('download-btn').addEventListener('click', function() {
+            const url = document.getElementById('url-input').value;
+            const formatId = document.getElementById('format-select').value;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/download/';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            form.appendChild(csrfInput);
+            const urlInput = document.createElement('input');
+            urlInput.type = 'hidden';
+            urlInput.name = 'url';
+            urlInput.value = url;
+            form.appendChild(urlInput);
+            const formatInput = document.createElement('input');
+            formatInput.type = 'hidden';
+            formatInput.name = 'format_id';
+            formatInput.value = formatId;
+            form.appendChild(formatInput);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    </script>
 </body>
 </html>
