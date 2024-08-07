@@ -1,17 +1,14 @@
 import os
+import time
 from django.shortcuts import render
-from django.http import JsonResponse, FileResponse
+from django.http import FileResponse, HttpResponseForbidden
 from django.views.decorators.http import require_http_methods
+from django.core.files.storage import default_storage
 from django.conf import settings
 #from ratelimit.decorators import ratelimit
 import yt_dlp
 
-
-def truncate_filename(filename, max_length=100):
-    name, ext = os.path.splitext(filename)
-    if len(name) > max_length:
-        return name[:max_length] + '...' + ext
-    return filename
+ALLOWED_DOMAINS = ['youtube.com', 'youtu.be', 'facebook.com', 'fb.watch', 'tiktok.com']
 
 
 @require_http_methods(["GET"])
@@ -21,59 +18,39 @@ def index(request):
 
 @require_http_methods(["POST"])
 #@ratelimit(key='ip', rate='10/h', block=True)
-def get_video_info(request):
-    url = request.POST.get('url', '').strip()
-
-    if not url:
-        return JsonResponse({'error': 'URL invalide.'}, status=400)
-
-    try:
-        ydl_opts = {'format': 'bestaudio/best'}
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=False)
-
-        formats = [
-            {
-                'format_id': f['format_id'],
-                'ext': f['ext'],
-                'resolution': f.get('resolution', 'Audio'),
-                'filesize': f.get('filesize', 'Unknown')
-            }
-            for f in info['formats'] if f.get('resolution') != 'audio only'
-        ]
-
-        return JsonResponse({
-            'title': truncate_filename(info['title']),
-            'thumbnail': info['thumbnail'],
-            'formats': formats
-        })
-
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-
-
-@require_http_methods(["POST"])
-#@ratelimit(key='ip', rate='5/h', block=True)
 def download(request):
     url = request.POST.get('url', '').strip()
-    format_id = request.POST.get('format_id', '').strip()
 
-    if not url or not format_id:
-        return JsonResponse({'error': 'URL ou format invalide.'}, status=400)
+    if not url or not any(domain in url for domain in ALLOWED_DOMAINS):
+        return render(request, 'downloader/index.html', {'message': 'URL invalide ou non supportée.'})
 
     try:
         ydl_opts = {
-            'format': format_id,
             'outtmpl': os.path.join(settings.MEDIA_ROOT, '%(title)s.%(ext)s'),
+            'format': 'best',
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             filename = ydl.prepare_filename(info)
-            truncated_filename = truncate_filename(os.path.basename(filename))
 
+        # Vérifier si le fichier existe et est accessible
+        if not os.path.exists(filename) or not os.access(filename, os.R_OK):
+            raise FileNotFoundError("Le fichier téléchargé n'est pas accessible.")
+
+        # Configurer la réponse pour le téléchargement
         response = FileResponse(open(filename, 'rb'))
-        response['Content-Disposition'] = f'attachment; filename="{truncated_filename}"'
+        response['Content-Disposition'] = f'attachment; filename="{os.path.basename(filename)}"'
+
+        # Programmer la suppression du fichier
+        default_storage.delete(filename)
+
         return response
 
+    except yt_dlp.utils.DownloadError as e:
+        message = f"Erreur lors du téléchargement : {str(e)}"
+    except FileNotFoundError as e:
+        message = str(e)
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
+        message = f"Une erreur inattendue s'est produite : {str(e)}"
+
+    return render(request, 'downloader/index.html', {'message': message})
