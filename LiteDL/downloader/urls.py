@@ -7,4 +7,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('download/', views.download, name='download'),
     path('clean/', user_passes_test(lambda u: u.is_superuser)(clean_old_downloads), name='clean'),
+    path('get_video_info', views.get_video_info, name='info'),
 ]
