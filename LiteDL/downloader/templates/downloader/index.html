@@ -109,36 +109,6 @@
             color: var(--dark-gray);
             text-align: justify;
         }
-
-        #preview {
-            background-color: white;
-            border: 2px solid var(--secondary-blue);
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        #video-title {
-            color: var(--primary-blue);
-            margin-top: 0;
-        }
-
-        #thumbnail {
-            max-width: 100%;
-            height: auto;
-            border-radius: 4px;
-            margin-bottom: 15px;
-        }
-
-        #format-select {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid var(--secondary-blue);
-            border-radius: 4px;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
@@ -160,13 +130,6 @@
             <img src="https://www.tiktok.com/favicon.ico" alt="Logo TikTok" width="40" height="40">
         </div>
 
-        <div id="preview">
-            <h2 id="video-title"></h2>
-            <img id="thumbnail" src="" alt="Miniature de la vidéo">
-            <select id="format-select"></select>
-            <button id="download-btn-final">Télécharger</button>
-        </div>
-
         <div id="result"></div>
 
         <div class="disclaimer">
@@ -177,7 +140,7 @@
     <script>
         document.getElementById('download-btn').addEventListener('click', function() {
             const url = document.getElementById('url-input').value;
-            fetch('/get_video_info/', {
+            fetch('/download/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
@@ -189,45 +152,10 @@
             .then(data => {
                 if (data.error) {
                     document.getElementById('result').innerHTML = data.error;
-                    return;
+                } else {
+                    document.getElementById('result').innerHTML = 'Téléchargement réussi !';
                 }
-                document.getElementById('video-title').textContent = data.title;
-                document.getElementById('thumbnail').src = data.thumbnail;
-                const select = document.getElementById('format-select');
-                select.innerHTML = '';
-                data.formats.forEach(format => {
-                    const option = document.createElement('option');
-                    option.value = format.format_id;
-                    option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
-                    select.appendChild(option);
-                });
-                document.getElementById('preview').style.display = 'block';
             });
-        });
-
-        document.getElementById('download-btn-final').addEventListener('click', function() {
-            const url = document.getElementById('url-input').value;
-            const formatId = document.getElementById('format-select').value;
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = '/download/';
-            const csrfInput = document.createElement('input');
-            csrfInput.type = 'hidden';
-            csrfInput.name = 'csrfmiddlewaretoken';
-            csrfInput.value = '{{ csrf_token }}';
-            form.appendChild(csrfInput);
-            const urlInput = document.createElement('input');
-            urlInput.type = 'hidden';
-            urlInput.name = 'url';
-            urlInput.value = url;
-            form.appendChild(urlInput);
-            const formatInput = document.createElement('input');
-            formatInput.type = 'hidden';
-            formatInput.name = 'format_id';
-            formatInput.value = formatId;
-            form.appendChild(formatInput);
-            document.body.appendChild(form);
-            form.submit();
         });
     </script>
 </body>
