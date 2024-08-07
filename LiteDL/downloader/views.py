@@ -22,7 +22,7 @@ def index(request):
 @require_http_methods(["POST"])
 #@ratelimit(key='ip', rate='10/h', block=True)
 def get_video_info(request):
-    url = request.POST.get('url', '').strip()
+    url = request.POST.get('url', 'get_video_info/').strip()
 
     if not url:
         return JsonResponse({'error': 'URL invalide.'}, status=400)
