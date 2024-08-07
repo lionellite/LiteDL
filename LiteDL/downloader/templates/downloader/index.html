@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LiteDL - Lite Downloader</title>
+    <title>Téléchargeur de vidéos</title>
     <style>
         :root {
             --primary-blue: #1a5f7a;
@@ -29,17 +30,7 @@
             background-color: white;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-
-        .logo {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .logo img {
-            width: 100px;
-            height: 100px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
@@ -48,15 +39,7 @@
             margin-bottom: 30px;
         }
 
-        .title-lite {
-            color: var(--primary-blue);
-        }
-
-        .title-dl {
-            color: var(--primary-red);
-        }
-
-        .input-group {
+        #url-form {
             display: flex;
             margin-bottom: 20px;
         }
@@ -69,12 +52,59 @@
             font-size: 16px;
         }
 
-        #download-btn {
+        #info-btn {
             padding: 10px 20px;
-            background-color: var(--primary-red);
+            background-color: var(--primary-blue);
             color: white;
             border: none;
             border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        #info-btn:hover {
+            background-color: var(--secondary-blue);
+        }
+
+        #preview {
+            background-color: white;
+            border: 2px solid var(--secondary-blue);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #video-title {
+            color: var(--primary-blue);
+            margin-top: 0;
+        }
+
+        #thumbnail {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        #format-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--secondary-blue);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        #download-btn {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
             transition: background-color 0.3s;
@@ -84,116 +114,92 @@
             background-color: var(--secondary-red);
         }
 
-        .supported-sites {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-
-        .supported-sites img {
-            width: 40px;
-            height: 40px;
-            margin: 0 10px;
-        }
-
         #result {
             margin-top: 20px;
             padding: 10px;
             border-radius: 4px;
             background-color: var(--light-gray);
-        }
-
-        .disclaimer {
-            margin-top: 30px;
-            font-size: 0.9em;
-            color: var(--dark-gray);
-            text-align: justify;
+            color: var(--primary-red);
         }
     </style>
 </head>
+
 <body>
     <div class="container">
-        <div class="logo">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0idXJsKCNncmFkaWVudCkiPgogICAgICAgIDxkZWZzPgogICAgICAgICAgPGxpbmVhcmdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgICAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOnZhcigtLXByaW1hcnktYmx1ZSk7Ij48L3N0b3A+CiAgICAgICAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6dmFyKC0tc2Vjb25kYXJ5LXJlZCk7Ij48L3N0b3A+CiAgICAgICAgICA8L2xpbmVhcmdyYWRpZW50PgogICAgICAgIDwvZGVmcz4KICAgICAgICA8cGF0aCBkPSJNMTkuMzUgMTAuMDRDMTguNjcgNi41OSAxNS42NCA0IDEyIDQgOS4xMSA0IDYuNiA1LjY0IDUuMzUgOC4wNCAyLjM0IDguMzYgMCAxMC45MSAwIDE0YzAgMy4zMSAyLjY5IDYgNiA2aDEzYzIuNzYgMCA1LTIuMjQgNS01IDAtMi42NC0yLjA1LTQuNzgtNC42NS00Ljk2ek0xNyAxM2wtNSA1LTUtNWgzVjloNHY0aDN6Ij48L3BhdGg+CiAgICAgIDwvc3ZnPg==" alt="Logo">
-        </div>
-
-        <h1><span class="title-lite">Lite</span><span class="title-dl">DL</span> - Lite Downloader</h1>
-
-        <div class="input-group">
-            <input type="text" id="url-input" placeholder="Collez l'URL ici" required>
+        <h1>Téléchargeur de vidéos</h1>
+        <p>Entrez l'URL de la vidéo YouTube, Facebook ou TikTok que vous souhaitez télécharger :</p>
+        <form id="url-form">
+            {% csrf_token %}
+            <input type="text" id="url-input" name="url" placeholder="Collez l'URL ici" required>
+            <button type="submit" id="info-btn">Obtenir les informations</button>
+        </form>
+        <div id="preview">
+            <h2 id="video-title"></h2>
+            <img id="thumbnail" src="" alt="Miniature de la vidéo">
+            <select id="format-select"></select>
             <button id="download-btn">Télécharger</button>
         </div>
-
-        <div class="supported-sites">
-            <img src="https://www.youtube.com/favicon.ico" alt="Logo YouTube" width="40" height="40">
-            <img src="https://www.facebook.com/favicon.ico" alt="Logo Facebook" width="40" height="40">
-            <img src="https://www.tiktok.com/favicon.ico" alt="Logo TikTok" width="40" height="40">
-        </div>
-
         <div id="result"></div>
-
-        <div class="disclaimer">
-            <p><strong>Avertissement :</strong> L'auteur de ce site n'est en aucun cas responsable de son usage. Il est important de noter que le téléchargement de vidéos YouTube et d'autres plateformes peut être illégal dans certaines juridictions et peut violer les conditions d'utilisation de ces services. L'utilisation de cet outil est à vos propres risques et n'engage que vous. Veuillez respecter les droits d'auteur et utiliser ce service de manière responsable et éthique.</p>
-        </div>
     </div>
 
-<script>
-    // Le code JavaScript reste inchangé
-    document.getElementById('url-form').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const url = document.getElementById('url-input').value;
-        fetch('/get_video_info/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: 'url=' + encodeURIComponent(url)
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.error) {
-                    document.getElementById('result').innerHTML = data.error;
-                    return;
-                }
-                document.getElementById('video-title').textContent = data.title;
-                document.getElementById('thumbnail').src = data.thumbnail;
-                const select = document.getElementById('format-select');
-                select.innerHTML = '';
-                data.formats.forEach(format => {
-                    const option = document.createElement('option');
-                    option.value = format.format_id;
-                    option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
-                    select.appendChild(option);
+    <script>
+        // Le code JavaScript reste inchangé
+        document.getElementById('url-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const url = document.getElementById('url-input').value;
+            fetch('/get_video_info/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'url=' + encodeURIComponent(url)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        document.getElementById('result').innerHTML = data.error;
+                        return;
+                    }
+                    document.getElementById('video-title').textContent = data.title;
+                    document.getElementById('thumbnail').src = data.thumbnail;
+                    const select = document.getElementById('format-select');
+                    select.innerHTML = '';
+                    data.formats.forEach(format => {
+                        const option = document.createElement('option');
+                        option.value = format.format_id;
+                        option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
+                        select.appendChild(option);
+                    });
+                    document.getElementById('preview').style.display = 'block';
                 });
-                document.getElementById('preview').style.display = 'block';
-            });
-    });
+        });
 
-    document.getElementById('download-btn').addEventListener('click', function () {
-        const url = document.getElementById('url-input').value;
-        const formatId = document.getElementById('format-select').value;
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/download/';
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrfmiddlewaretoken';
-        csrfInput.value = '{{ csrf_token }}';
-        form.appendChild(csrfInput);
-        const urlInput = document.createElement('input');
-        urlInput.type = 'hidden';
-        urlInput.name = 'url';
-        urlInput.value = url;
-        form.appendChild(urlInput);
-        const formatInput = document.createElement('input');
-        formatInput.type = 'hidden';
-        formatInput.name = 'format_id';
-        formatInput.value = formatId;
-        form.appendChild(formatInput);
-        document.body.appendChild(form);
-        form.submit();
-    });
-</script>
+        document.getElementById('download-btn').addEventListener('click', function () {
+            const url = document.getElementById('url-input').value;
+            const formatId = document.getElementById('format-select').value;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/download/';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            form.appendChild(csrfInput);
+            const urlInput = document.createElement('input');
+            urlInput.type = 'hidden';
+            urlInput.name = 'url';
+            urlInput.value = url;
+            form.appendChild(urlInput);
+            const formatInput = document.createElement('input');
+            formatInput.type = 'hidden';
+            formatInput.name = 'format_id';
+            formatInput.value = formatId;
+            form.appendChild(formatInput);
+            document.body.appendChild(form);
+            form.submit();
+        });
+    </script>
 </body>
+
 </html>
