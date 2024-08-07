@@ -158,21 +158,21 @@
                 }
                 document.getElementById('video-title').textContent = data.title;
                 document.getElementById('thumbnail').src = data.thumbnail;
-                /*const select = document.getElementById('format-select');
+                const select = document.getElementById('format-select');
                 select.innerHTML = '';
                 data.formats.forEach(format => {
                     const option = document.createElement('option');
                     option.value = format.format_id;
                     option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
                     select.appendChild(option);
-                });*/
+                });
                 document.getElementById('preview').style.display = 'block';
             });
     });
 
     document.getElementById('download-btn').addEventListener('click', function () {
         const url = document.getElementById('url-input').value;
-        //const formatId = document.getElementById('format-select').value;
+        const formatId = document.getElementById('format-select').value;
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '/download/';
@@ -186,11 +186,11 @@
         urlInput.name = 'url';
         urlInput.value = url;
         form.appendChild(urlInput);
-        /*const formatInput = document.createElement('input');
+        const formatInput = document.createElement('input');
         formatInput.type = 'hidden';
         formatInput.name = 'format_id';
         formatInput.value = formatId;
-        form.appendChild(formatInput);*/
+        form.appendChild(formatInput);
         document.body.appendChild(form);
         form.submit();
     });
