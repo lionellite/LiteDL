@@ -24,14 +24,13 @@
         }
 
         .container {
+            max-width: 800px;
+            margin: 0 auto;
             background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            padding: 2.5rem;
-            width: 90%;
-            max-width: 600px;
-  }
-
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
 
         .logo {
             text-align: center;
@@ -110,22 +109,43 @@
             color: var(--dark-gray);
             text-align: justify;
         }
+
+        #preview {
+            background-color: white;
+            border: 2px solid var(--secondary-blue);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        #video-title {
+            color: var(--primary-blue);
+            margin-top: 0;
+        }
+
+        #thumbnail {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+
+        #format-select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--secondary-blue);
+            border-radius: 4px;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="url(#gradient)">
-        <defs>
-          <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" style="stop-color:var(--primary-blue);" />
-            <stop offset="100%" style="stop-color:var(--secondary-red);" />
-          </linearGradient>
-        </defs>
-        <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
-      </svg>
-    </div>
-
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdib3g9IjAgMCAyNCAyNCIgZmlsbD0idXJsKCNncmFkaWVudCkiPgogICAgICAgIDxkZWZzPgogICAgICAgICAgPGxpbmVhcmdyYWRpZW50IGlkPSJncmFkaWVudCIgeDE9IjAlIiB5MT0iMCUiIHgyPSIxMDAlIiB5Mj0iMTAwJSI+CiAgICAgICAgICAgIDxzdG9wIG9mZnNldD0iMCUiIHN0eWxlPSJzdG9wLWNvbG9yOnZhcigtLXByaW1hcnktYmx1ZSk7Ij48L3N0b3A+CiAgICAgICAgICAgIDxzdG9wIG9mZnNldD0iMTAwJSIgc3R5bGU9InN0b3AtY29sb3I6dmFyKC0tc2Vjb25kYXJ5LXJlZCk7Ij48L3N0b3A+CiAgICAgICAgICA8L2xpbmVhcmdyYWRpZW50PgogICAgICAgIDwvZGVmcz4KICAgICAgICA8cGF0aCBkPSJNMTkuMzUgMTAuMDRDMTguNjcgNi41OSAxNS42NCA0IDEyIDQgOS4xMSA0IDYuNiA1LjY0IDUuMzUgOC4wNCAyLjM0IDguMzYgMCAxMC45MSAwIDE0YzAgMy4zMSAyLjY5IDYgNiA2aDEzYzIuNzYgMCA1LTIuMjQgNS01IDAtMi42NC0yLjA1LTQuNzgtNC42NS00Ljk2ek0xNyAxM2wtNSA1LTUtNWgzVjloNHY0aDN6Ij48L3BhdGg+CiAgICAgIDwvc3ZnPg==" alt="Logo">
+        </div>
 
         <h1><span class="title-lite">Lite</span><span class="title-dl">DL</span> - Lite Downloader</h1>
 
@@ -140,6 +160,13 @@
             <img src="https://www.tiktok.com/favicon.ico" alt="Logo TikTok" width="40" height="40">
         </div>
 
+        <div id="preview">
+            <h2 id="video-title"></h2>
+            <img id="thumbnail" src="" alt="Miniature de la vidéo">
+            <select id="format-select"></select>
+            <button id="download-btn-final">Télécharger</button>
+        </div>
+
         <div id="result"></div>
 
         <div class="disclaimer">
@@ -148,8 +175,60 @@
     </div>
 
     <script>
-        // Ici, vous pouvez ajouter le code JavaScript nécessaire pour gérer le téléchargement
-        // et l'affichage des résultats dans la div #result
+        document.getElementById('download-btn').addEventListener('click', function() {
+            const url = document.getElementById('url-input').value;
+            fetch('/get_video_info/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: 'url=' + encodeURIComponent(url)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('result').innerHTML = data.error;
+                    return;
+                }
+                document.getElementById('video-title').textContent = data.title;
+                document.getElementById('thumbnail').src = data.thumbnail;
+                const select = document.getElementById('format-select');
+                select.innerHTML = '';
+                data.formats.forEach(format => {
+                    const option = document.createElement('option');
+                    option.value = format.format_id;
+                    option.textContent = `${format.resolution} - ${format.ext} (${format.filesize} bytes)`;
+                    select.appendChild(option);
+                });
+                document.getElementById('preview').style.display = 'block';
+            });
+        });
+
+        document.getElementById('download-btn-final').addEventListener('click', function() {
+            const url = document.getElementById('url-input').value;
+            const formatId = document.getElementById('format-select').value;
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/download/';
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            form.appendChild(csrfInput);
+            const urlInput = document.createElement('input');
+            urlInput.type = 'hidden';
+            urlInput.name = 'url';
+            urlInput.value = url;
+            form.appendChild(urlInput);
+            const formatInput = document.createElement('input');
+            formatInput.type = 'hidden';
+            formatInput.name = 'format_id';
+            formatInput.value = formatId;
+            form.appendChild(formatInput);
+            document.body.appendChild(form);
+            form.submit();
+        });
     </script>
 </body>
 </html>
