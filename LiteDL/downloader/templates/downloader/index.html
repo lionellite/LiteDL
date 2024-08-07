@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <!-- ... (le reste du head reste inchangé) ... -->
+</head>
+<body>
+    <h1>Téléchargeur de vidéos</h1>
+    <p>Entrez l'URL de la vidéo YouTube, Facebook ou TikTok que vous souhaitez télécharger :</p>
+    <form method="post" action="{% url 'download' %}">
+        {% csrf_token %}
+        <input type="text" id="url-input" name="url" placeholder="Collez l'URL ici" required>
+        <button type="submit" id="download-btn">Télécharger</button>
+    </form>
+    {% if message %}
+    <div id="result" {% if 'erreur' in message.lower %}style="color: red;"{% endif %}>
+        {{ message }}
+    </div>
+    {% endif %}
+</body>
+</html>
