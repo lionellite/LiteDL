@@ -1,20 +1,33 @@
+<!-- home.html -->
+{% load static %}
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
-    <!-- ... (le reste du head reste inchangé) ... -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Downloader</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Téléchargeur de vidéos</h1>
-    <p>Entrez l'URL de la vidéo YouTube, Facebook ou TikTok que vous souhaitez télécharger :</p>
-    <form method="post" action="{% url 'download' %}">
-        {% csrf_token %}
-        <input type="text" id="url-input" name="url" placeholder="Collez l'URL ici" required>
-        <button type="submit" id="download-btn">Télécharger</button>
-    </form>
-    {% if message %}
-    <div id="result" {% if 'erreur' in message.lower %}style="color: red;"{% endif %}>
-        {{ message }}
+<body class="bg-gray-100">
+    <div class="container mx-auto py-8">
+        <h1 class="text-3xl font-bold mb-4">Video Downloader</h1>
+        <form method="post" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2" for="url">
+                    Enter Video URL:
+                </label>
+                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="url" name="url" type="text" placeholder="Enter video URL">
+            </div>
+            <div class="flex items-center justify-between">
+                <button class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit">
+                    Download
+                </button>
+                {% if error_message %}
+                <p class="text-red-500 text-xs italic">{{ error_message }}</p>
+                {% endif %}
+            </div>
+        </form>
     </div>
-    {% endif %}
 </body>
 </html>
