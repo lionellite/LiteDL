@@ -1,7 +1,7 @@
 from django.views.generic import View
 from pytube import YouTube
 from django.shortcuts import render,redirect
-
+from pytube.exceptions import PytubeError
 from pytube.innertube import _default_clients
 from pytube import cipher
 import re
@@ -62,11 +62,6 @@ class home(View):
     
     def get(self,request):
         return render(request,'downloader/home.html') 
-    
-    from pytube.exceptions import PytubeError
-
-class home(View):
-    # ...
 
     def post(self, request):
         if request.POST.get('fetch-vid'):
