@@ -72,6 +72,8 @@ TEMPLATES = [
 WSGI_APPLICATION = 'LiteDL.wsgi.application'
 
 
+STATIC_ROOT = None
+
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
