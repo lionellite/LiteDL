@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-8y+d8i7-u-spx$5$m=!h3afs$$gdo*-xk)fd7^+o_h42%$&9#l
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [litedl.onrender.com]
+ALLOWED_HOSTS = ['litedl.onrender.com', ]
 
 
 # Application definition
