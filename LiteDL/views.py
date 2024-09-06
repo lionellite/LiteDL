@@ -63,21 +63,28 @@ class home(View):
     def get(self,request):
         return render(request,'downloader/home.html') 
     
-    def post(self,request):
-        # for fetching the video
+    from pytube.exceptions import PytubeError
+
+class home(View):
+    # ...
+
+    def post(self, request):
         if request.POST.get('fetch-vid'):
             self.url = request.POST.get('given_url')
-            video = YouTube(self.url)
-            vidTitle,vidThumbnail = video.title,video.thumbnail_url
-            qual,stream = [],[]
-            for vid in video.streams.filter(progressive=True, file_extension='mp4'):
-                qual.append(vid.resolution)
-                stream.append(vid)
-            context = {'vidTitle':vidTitle,'vidThumbnail':vidThumbnail,
-                        'qual':qual,'stream':stream,
-                        'url':self.url}
-            return render(request,'downloader/home.html',context)
-
+            try:
+                video = YouTube(self.url)
+                vidTitle, vidThumbnail = video.title, video.thumbnail_url
+                qual, stream = [], []
+                for vid in video.streams.filter(adaptive=True):
+                    qual.append(vid.resolution)
+                    stream.append(vid)
+                context = {'vidTitle': vidTitle, 'vidThumbnail': vidThumbnail,
+                           'qual': qual, 'stream': stream,
+                           'url': self.url}
+            except PytubeError as e:
+                context = {'error': f"Erreur lors de l'accès à la vidéo : {str(e)}"}
+            
+            return render(request, 'downloader/home.html', context)
         # for downloading the video
         elif request.POST.get('download-vid'):
             self.url = request.POST.get('given_url')
